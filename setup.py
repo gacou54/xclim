@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """The setup script."""
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import setup, find_packages
+
 
 NAME = "xclim"
 DESCRIPTION = "Derived climate variables built with xarray."
@@ -12,14 +12,7 @@ AUTHOR_EMAIL = "logan.travis@ouranos.ca"
 REQUIRES_PYTHON = ">=3.5.0"
 VERSION = "0.10.8-beta"
 LICENSE = "Apache Software License 2.0"
-
-with open("README.rst") as readme_file:
-    readme = readme_file.read()
-
-with open("HISTORY.rst") as history_file:
-    history = history_file.read()
-
-requirements = [
+REQUIREMENTS = [
     "scipy>=1.2",
     "numpy>=1.15",
     "pandas>=0.23",
@@ -32,19 +25,17 @@ requirements = [
     "pint>=0.8",
     "boltons>=18.0",
 ]
-
-setup_requirements = ["pytest-runner"]
-
-test_requirements = ["pytest", "tox"]
-
-docs_requirements = ["sphinx", "guzzle-sphinx-theme", "nbsphinx", "pandoc", "ipython"]
-
-dev_requirements = []
-with open("requirements_dev.txt") as dev:
-    for dependency in dev.readlines():
-        dev_requirements.append(dependency)
-
+DOCS_REQUIREMENTS = ["sphinx", "guzzle-sphinx-theme", "nbsphinx", "pandoc", "ipython"]
 KEYWORDS = "xclim climate climatology netcdf gridded analysis"
+
+with open("README.rst") as readme_file:
+    README = readme_file.read()
+
+with open("HISTORY.rst") as history_file:
+    HISTORY = history_file.read()
+
+with open("requirements.txt") as dev_requirements_file:
+    DEV_REQUIREMENTS = dev_requirements_file.readlines()
 
 setup(
     author=AUTHOR,
@@ -64,18 +55,19 @@ setup(
     ],
     description=DESCRIPTION,
     python_requires=REQUIRES_PYTHON,
-    install_requires=requirements,
+    install_requires=REQUIREMENTS,
     license=LICENSE,
-    long_description=readme + "\n\n" + history,
+    long_description=README + "\n\n" + HISTORY,
     long_description_content_type="text/markdown",
     include_package_data=True,
     keywords=KEYWORDS,
     name=NAME,
     packages=find_packages(),
-    setup_requires=setup_requirements,
     test_suite="tests",
-    tests_require=test_requirements,
-    extras_require={"docs": docs_requirements, "dev": dev_requirements},
+    extras_require={
+        "docs": DOCS_REQUIREMENTS,
+        "dev": REQUIREMENTS
+    },
     url=URL,
     version=VERSION,
     zip_safe=False,
