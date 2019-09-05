@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """The setup script."""
+import subprocess
+
 from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
 
 
 NAME = "xclim"
@@ -28,6 +31,10 @@ REQUIREMENTS = [
 DOCS_REQUIREMENTS = ["sphinx", "guzzle-sphinx-theme", "nbsphinx", "pandoc", "ipython"]
 KEYWORDS = "xclim climate climatology netcdf gridded analysis"
 
+FLAKE8_COMMAND = ['./venv/bin/flake8', 'xclim', 'tests']
+BLACK_COMMAND = ['./venv/bin/black', '--check', 'xclim', 'tests']
+TESTS_COMMAND = ['./venv/bin/python', '-m', 'pytest']
+
 with open("README.rst") as readme_file:
     README = readme_file.read()
 
@@ -36,6 +43,43 @@ with open("HISTORY.rst") as history_file:
 
 with open("requirements.txt") as dev_requirements_file:
     DEV_REQUIREMENTS = dev_requirements_file.readlines()
+
+
+def _run_command(command):
+    try:
+        subprocess.check_call(command)
+
+    except subprocess.CalledProcessError as error:
+        print('Command failed with exit code', error.returncode)
+        exit(error.returncode)
+
+
+class Tests(TestCommand):
+    description = 'run tests'
+    user_options = []
+
+    def run_tests(self):
+        _run_command(TESTS_COMMAND)
+
+
+class LintTests(TestCommand):
+    description = 'run linters'
+    user_options = []
+
+    def run_tests(self):
+        _run_command(FLAKE8_COMMAND)
+        _run_command(BLACK_COMMAND)
+
+
+class AllTests(TestCommand):
+    description = 'run tests and linters'
+    user_options = []
+
+    def run_tests(self):
+        _run_command(TESTS_COMMAND)
+        _run_command(FLAKE8_COMMAND)
+        _run_command(BLACK_COMMAND)
+
 
 setup(
     author=AUTHOR,
@@ -63,7 +107,11 @@ setup(
     keywords=KEYWORDS,
     name=NAME,
     packages=find_packages(),
-    test_suite="tests",
+    cmdclass={
+        'lint': LintTests,
+        'test': Tests,
+        'check': AllTests
+    },
     extras_require={
         "docs": DOCS_REQUIREMENTS,
         "dev": REQUIREMENTS
